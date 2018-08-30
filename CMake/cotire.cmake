@@ -1419,12 +1419,20 @@ function (cotire_generate_unity_source _unityFile)
 			endif()
 		endforeach()
 		# use absolute path as source file location
-		get_filename_component(_sourceFileLocation "${_sourceFile}" ABSOLUTE)
+        get_filename_component(_sourceFileLocation "${_sourceFile}" ABSOLUTE)
+
+        string(REPLACE "/" "_" _defName "${_sourceFileLocation}")
+        string(REPLACE "." "_" _defName "${_defName}")
+        string(TOUPPER ${_defName} _defName)
+
 		if (WIN32)
 			file (TO_NATIVE_PATH "${_sourceFileLocation}" _sourceFileLocation)
-		endif()
+        endif()
+
+        list(APPEND _contents "#define _COTIRE_UNIQUE_NAME_ ${_defName}_")
 		list (APPEND _contents "#include \"${_sourceFileLocation}\"")
-	endforeach()
+        list(APPEND _contents "#undef _COTIRE_UNIQUE_NAME_")
+    endforeach()
 	if (_compileUndefinitions)
 		cotire_append_undefs(_contents ${_compileUndefinitions})
 		set (_compileUndefinitions "")
